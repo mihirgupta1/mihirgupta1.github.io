@@ -1,0 +1,777 @@
+<!DOCTYPE html>
+<html lang="en-US">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="author" content="Mihir" />
+    
+    <link rel="shortcut icon" type="image/x-icon" href="/img/favicon.ico">
+    <title>COVID Vaccinations and Voting Trends in the 2020 Presidential Election in Texas</title>
+    <meta name="generator" content="Hugo 0.98.0" />
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+    <link rel="stylesheet" type="text/css" href="/css/main.css" />
+    <link rel="stylesheet" type="text/css" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" />
+    <link rel="stylesheet" type="text/css" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:200,400,200bold,400old" />
+    
+    <!--[if lt IE 9]>
+			<script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+			<script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+		<![endif]-->
+
+    
+  </head>
+
+  <body>
+    <div id="wrap">
+      
+      <nav class="navbar navbar-default">
+  <div class="container">
+    <div class="navbar-header">
+      <a class="navbar-brand" href="/"><i class="fa fa-home"></i></a>
+      <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#navbar">
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+    </div>
+    <div class="navbar-collapse collapse" id="navbar">
+      <ul class="nav navbar-nav navbar-right">
+      
+        
+        <li><a href="/post/">BLOG</a></li>
+        
+        <li><a href="/projects/">PROJECTS</a></li>
+        
+        <li><a href="/resume/">RESUME</a></li>
+        
+      
+      </ul>
+    </div>
+  </div>
+</nav>
+
+      <div class="container">
+        <div class="blog-post">
+          <h3>
+            <strong><a href="/project/project2/">COVID Vaccinations and Voting Trends in the 2020 Presidential Election in Texas</a></strong>
+          </h3>
+        </div>
+ 
+<div class="blog-title">
+          <h4>
+         May 10, 2022 
+            &nbsp;&nbsp;
+            
+          </h4>
+        </div>
+
+        <div class="panel panel-default">
+          <div class="panel-body">
+            <div class="blogpost">
+              
+
+
+<div id="introduction" class="section level2">
+<h2>1. Introduction</h2>
+<p>Please note, I have imported the same datasets from project 1, and have copied the same wrangling and tidying from project 1 to use for project 2.</p>
+<p>I have chosen four datasets. The first dataset, called casedata contains the total number of confirmed COVID-19 cases by county in the state of Texas from the beginning of the Covid-19 pandemic. I got this data from the <a href="https://dshs.texas.gov/coronavirus/additionaldata/">Texas Department of State Health Services</a>.</p>
+<p>The second dataset, called vaccinedata contains various information regarding COVID-19 vaccinations by county including doses allocated to each county, doses administered, and breakdowns by age and priority status. The most important information that I will be using is the total amount of vaccinations administered, people with one dose, people who are fully vaccinated, and people with a booster shot. I also received this data from the <a href="https://dshs.texas.gov/coronavirus/additionaldata/">Texas Department of State Health Services</a>.</p>
+<p>My third dataset, called electiondata, contains the breakdown by county of the results for the 2020 presidential election in Texas. It contains the total vote counts for each county and the breakdown by candidate. I got this data from <a href="https://en.wikipedia.org/wiki/2020_United_States_presidential_election_in_Texas">Wikipedia</a>.</p>
+<p>My fourth dataset, called populationdata contains the breakdown of the population for each county along with other information for each county including the year it was established and the origin for the name of the county. I got this data from <a href="https://en.wikipedia.org/wiki/List_of_counties_in_Texas">Wikipedia</a>, which sourced its data from the <a href="https://www.census.gov/quickfacts/fact/table/TX/PST045219">US Census Bureau</a>.</p>
+<p>These data are interesting to me because I think the politicization of the COVID-19 pandemic and vaccine is a very interesting topic that can help reveal associations between political affialiation and core values that influence vaccination choices.</p>
+<p>I expect that counties that voted more heavily for Donald Trump would have lower vaccination rates and higher proportions of cases than counties that voted for Joe Biden in the 2020 presidential election.</p>
+<pre class="r"><code>#Import the data into RStudio
+casedata &lt;- read_csv(&quot;CaseCountData.csv&quot;)
+casedata %&gt;% head()</code></pre>
+<pre><code>## # A tibble: 6 x 4
+##   County    `Confirmed Cases` `Probable Cases` Fatalities
+##   &lt;chr&gt;                 &lt;dbl&gt;            &lt;dbl&gt;      &lt;dbl&gt;
+## 1 Anderson               6601             2888        230
+## 2 Andrews                3430              358         71
+## 3 Angelina               8922             6316        469
+## 4 Aransas                3150              900         78
+## 5 Archer                 1837              255         28
+## 6 Armstrong               333              167          8</code></pre>
+<pre class="r"><code>vaccinedata &lt;- read_csv(&quot;COVID-19 Vaccine Data by County.csv&quot;)
+vaccinedata %&gt;% head()</code></pre>
+<pre><code>## # A tibble: 6 x 15
+##   `County Name` `Public Health Region… `Total Doses Alloc… `Vaccine Doses Admin…
+##   &lt;chr&gt;         &lt;chr&gt;                                &lt;dbl&gt;                 &lt;dbl&gt;
+## 1 Anderson      4/5N                                 17870                 55565
+## 2 Andrews       10-Sep                                6100                 19557
+## 3 Angelina      4/5N                                 58100                 95411
+## 4 Aransas       11                                    6840                 34769
+## 5 Archer        3-Feb                                 3200                  9590
+## 6 Armstrong     1                                     2100                  1758
+## # … with 11 more variables: People Vaccinated with at least One Dose &lt;dbl&gt;,
+## #   People Fully Vaccinated &lt;dbl&gt;, People Vaccinated with Booster Dose &lt;dbl&gt;,
+## #   Population 5+ &lt;dbl&gt;, Population 12+ &lt;dbl&gt;, Population, 16+ &lt;dbl&gt;,
+## #   Population, 65+ &lt;dbl&gt;, Population, Phase 1A Healthcare Workers &lt;dbl&gt;,
+## #   Population, Phase 1A Long-term Care Residents &lt;dbl&gt;, Population, 16-64
+## #    Any Medical Condition &lt;dbl&gt;,
+## #   Population, Education and Child Care Personnel &lt;dbl&gt;</code></pre>
+<pre class="r"><code>electiondata &lt;- read_csv(&quot;Election Data.csv&quot;)
+electiondata %&gt;% head()</code></pre>
+<pre><code>## # A tibble: 6 x 12
+##   County  `Donald TrumpRepu… `Donald TrumpRep… `Joe BidenDemoc… `Joe BidenDemoc…
+##   &lt;chr&gt;   &lt;chr&gt;                          &lt;dbl&gt; &lt;chr&gt;                       &lt;dbl&gt;
+## 1 Anders… 78.59%                         15110 20.57%                       3955
+## 2 Andrews 84.31%                          4943 14.50%                        850
+## 3 Angeli… 72.40%                         25076 26.40%                       9143
+## 4 Aransas 75.17%                          9239 23.73%                       2916
+## 5 Archer  89.66%                          4300 9.30%                         446
+## 6 Armstr… 93.08%                          1035 6.74%                          75
+## # … with 7 more variables: Jo JorgensenLibertarian % &lt;chr&gt;,
+## #   Jo JorgensenLibertarian # &lt;dbl&gt;, Howie HawkinsGreen % &lt;chr&gt;,
+## #   Howie HawkinsGreen # &lt;dbl&gt;, Other votes % &lt;chr&gt;, Other votes # &lt;dbl&gt;,
+## #   Totalvotes &lt;dbl&gt;</code></pre>
+<pre class="r"><code>populationdata &lt;- read_csv(&quot;Population Data.csv&quot;)
+populationdata %&gt;% head()</code></pre>
+<pre><code>## # A tibble: 6 x 7
+##   County  `FIPS code` `County seat` Established Origin  Etymology     Population
+##   &lt;chr&gt;         &lt;dbl&gt; &lt;chr&gt;               &lt;dbl&gt; &lt;chr&gt;   &lt;chr&gt;              &lt;dbl&gt;
+## 1 Anders…           1 Palestine            1846 Housto… &quot;Kenneth Lew…      57922
+## 2 Andrew…           3 Andrews              1876 Bexar … &quot;Richard And…      18610
+## 3 Angeli…           5 Lufkin               1846 Nacogd… &quot;A Hainai Na…      86395
+## 4 Aransa…           7 Rockport             1871 Refugi… &quot;Aransas Bay…      23830
+## 5 Archer…           9 Archer City          1858 Fannin… &quot;Branch Tann…       8560
+## 6 Armstr…          11 Claude               1876 Bexar … &quot;One of seve…       1848</code></pre>
+<div id="a.-tidying-and-wrangling-before-joining" class="section level3">
+<h3>a. Tidying and Wrangling Before Joining</h3>
+<div id="tidying-electiondata" class="section level4">
+<h4>1. Tidying electiondata</h4>
+<p>Before I can join all of these datasets, I need to tidy and wrangle them to ensure there are no issues in joining the data.</p>
+<pre class="r"><code>#Begin with Tidying electiondata
+# remove the % sign from eaach of the values so that the percent voted for each candidate can be used as a number
+electiondata &lt;- electiondata %&gt;%
+  separate(`Donald TrumpRepublican %`, into = c(&quot;Donald TrumpRepublican %&quot;, &quot;DT%&quot;), sep = &quot;%&quot;) %&gt;%
+  separate(`Joe BidenDemocratic %`, into = c(&quot;Joe BidenDemocratic %&quot;, &quot;JB%&quot;), sep = &quot;%&quot;) %&gt;%
+  separate(`Jo JorgensenLibertarian %`, into = c(&quot;Jo JorgensenLibertarian %&quot;, &quot;JJ%&quot;), sep = &quot;%&quot;) %&gt;%
+  separate(`Howie HawkinsGreen %`, into = c(&quot;Howie HawkinsGreen %&quot;, &quot;HH%&quot;), sep = &quot;%&quot;) %&gt;%
+  separate(`Other votes %`, into = c(&quot;Other votes %&quot;, &quot;Ov%&quot;), sep = &quot;%&quot;) 
+
+# Change the data type from character to numeric
+class(electiondata$`Donald TrumpRepublican %`) &lt;- &quot;numeric&quot;
+class(electiondata$`Joe BidenDemocratic %`) &lt;- &quot;numeric&quot;
+class(electiondata$`Jo JorgensenLibertarian %`) &lt;- &quot;numeric&quot;
+class(electiondata$`Howie HawkinsGreen %`) &lt;- &quot;numeric&quot;
+class(electiondata$`Other votes %`) &lt;- &quot;numeric&quot;
+electiondata %&gt;% head()</code></pre>
+<pre><code>## # A tibble: 6 x 17
+##   County  `Donald TrumpRepub… `DT%` `Donald TrumpRepub… `Joe BidenDemocra… `JB%`
+##   &lt;chr&gt;                 &lt;dbl&gt; &lt;chr&gt;               &lt;dbl&gt;              &lt;dbl&gt; &lt;chr&gt;
+## 1 Anders…                78.6 &quot;&quot;                  15110              20.6  &quot;&quot;   
+## 2 Andrews                84.3 &quot;&quot;                   4943              14.5  &quot;&quot;   
+## 3 Angeli…                72.4 &quot;&quot;                  25076              26.4  &quot;&quot;   
+## 4 Aransas                75.2 &quot;&quot;                   9239              23.7  &quot;&quot;   
+## 5 Archer                 89.7 &quot;&quot;                   4300               9.3  &quot;&quot;   
+## 6 Armstr…                93.1 &quot;&quot;                   1035               6.74 &quot;&quot;   
+## # … with 11 more variables: Joe BidenDemocratic # &lt;dbl&gt;,
+## #   Jo JorgensenLibertarian % &lt;dbl&gt;, JJ% &lt;chr&gt;,
+## #   Jo JorgensenLibertarian # &lt;dbl&gt;, Howie HawkinsGreen % &lt;dbl&gt;, HH% &lt;chr&gt;,
+## #   Howie HawkinsGreen # &lt;dbl&gt;, Other votes % &lt;dbl&gt;, Ov% &lt;chr&gt;,
+## #   Other votes # &lt;dbl&gt;, Totalvotes &lt;dbl&gt;</code></pre>
+<pre class="r"><code>#Tidy populationdata
+populationdata &lt;- populationdata %&gt;%
+  separate(&quot;County&quot;, into = c(&quot;county&quot;, &quot;c&quot;), sep = &quot; County&quot;)
+populationdata%&gt;% head()</code></pre>
+<pre><code>## # A tibble: 6 x 8
+##   county c     `FIPS code` `County seat` Established Origin Etymology Population
+##   &lt;chr&gt;  &lt;chr&gt;       &lt;dbl&gt; &lt;chr&gt;               &lt;dbl&gt; &lt;chr&gt;  &lt;chr&gt;          &lt;dbl&gt;
+## 1 Ander… &quot;&quot;              1 Palestine            1846 Houst… &quot;Kenneth…      57922
+## 2 Andre… &quot;&quot;              3 Andrews              1876 Bexar… &quot;Richard…      18610
+## 3 Angel… &quot;&quot;              5 Lufkin               1846 Nacog… &quot;A Haina…      86395
+## 4 Arans… &quot;&quot;              7 Rockport             1871 Refug… &quot;Aransas…      23830
+## 5 Archer &quot;&quot;              9 Archer City          1858 Fanni… &quot;Branch …       8560
+## 6 Armst… &quot;&quot;             11 Claude               1876 Bexar… &quot;One of …       1848</code></pre>
+<p>First I removed the % from each value that had the percentage of the votes won by each candidate in each county. To do this, I separated the column by % to remove it. Then, I changed the datatype of the original column for each candidate containing the percentage of the vote that they won from character to numeric.</p>
+<p>I also removed the word county from each of the county names in the populationdata dataset using the separate function.</p>
+</div>
+<div id="wrangling" class="section level4">
+<h4>2. Wrangling</h4>
+<p>Now, I need to remove any extra columns that are not useful from each dataset</p>
+<pre class="r"><code>#Remove Extra Columns from electiondata
+electiondata &lt;- electiondata %&gt;%
+  select(-`DT%`, -`JB%`, -`JJ%`, -`HH%`, -`Ov%`)
+electiondata %&gt;% head()</code></pre>
+<pre><code>## # A tibble: 6 x 12
+##   County  `Donald TrumpRepu… `Donald TrumpRep… `Joe BidenDemoc… `Joe BidenDemoc…
+##   &lt;chr&gt;                &lt;dbl&gt;             &lt;dbl&gt;            &lt;dbl&gt;            &lt;dbl&gt;
+## 1 Anders…               78.6             15110            20.6              3955
+## 2 Andrews               84.3              4943            14.5               850
+## 3 Angeli…               72.4             25076            26.4              9143
+## 4 Aransas               75.2              9239            23.7              2916
+## 5 Archer                89.7              4300             9.3               446
+## 6 Armstr…               93.1              1035             6.74               75
+## # … with 7 more variables: Jo JorgensenLibertarian % &lt;dbl&gt;,
+## #   Jo JorgensenLibertarian # &lt;dbl&gt;, Howie HawkinsGreen % &lt;dbl&gt;,
+## #   Howie HawkinsGreen # &lt;dbl&gt;, Other votes % &lt;dbl&gt;, Other votes # &lt;dbl&gt;,
+## #   Totalvotes &lt;dbl&gt;</code></pre>
+<pre class="r"><code>#Remove Extra columns from vaccinedata
+vaccinedata &lt;- vaccinedata %&gt;%
+  select(`County Name`, `Total Doses Allocated`, `Vaccine Doses Administered`, `People Vaccinated with at least One Dose`, `People Fully Vaccinated`, `People Vaccinated with Booster Dose`)
+vaccinedata %&gt;% head()</code></pre>
+<pre><code>## # A tibble: 6 x 6
+##   `County Name` `Total Doses Alloc… `Vaccine Doses Adm… `People Vaccinated with…
+##   &lt;chr&gt;                       &lt;dbl&gt;               &lt;dbl&gt;                    &lt;dbl&gt;
+## 1 Anderson                    17870               55565                    26856
+## 2 Andrews                      6100               19557                     9128
+## 3 Angelina                    58100               95411                    44070
+## 4 Aransas                      6840               34769                    15910
+## 5 Archer                       3200                9590                     4425
+## 6 Armstrong                    2100                1758                      821
+## # … with 2 more variables: People Fully Vaccinated &lt;dbl&gt;,
+## #   People Vaccinated with Booster Dose &lt;dbl&gt;</code></pre>
+<pre class="r"><code>#Remove Extra Columns from populationdata
+populationdata &lt;- populationdata %&gt;%
+  select(county, Population)
+populationdata %&gt;% head()</code></pre>
+<pre><code>## # A tibble: 6 x 2
+##   county    Population
+##   &lt;chr&gt;          &lt;dbl&gt;
+## 1 Anderson       57922
+## 2 Andrews        18610
+## 3 Angelina       86395
+## 4 Aransas        23830
+## 5 Archer          8560
+## 6 Armstrong       1848</code></pre>
+<p>To make the data much more useable before joining the datasets.</p>
+</div>
+</div>
+<div id="b.-joining-the-data" class="section level3">
+<h3>b. Joining the Data</h3>
+<p>Now, I will get information from each dataset.</p>
+<pre class="r"><code># Code to get the total observations in each dataset
+populationdata %&gt;% dim()</code></pre>
+<pre><code>## [1] 254   2</code></pre>
+<pre class="r"><code>electiondata %&gt;% dim()</code></pre>
+<pre><code>## [1] 254  12</code></pre>
+<pre class="r"><code>vaccinedata %&gt;% dim()</code></pre>
+<pre><code>## [1] 258   6</code></pre>
+<pre class="r"><code>casedata %&gt;% dim()</code></pre>
+<pre><code>## [1] 256   4</code></pre>
+<p>The total number of observations in each dataset are as follows: The populationdata dataset has 254 unique IDs and 254 total observations. The electiondata dataset has 254 unique IDs and 254 total observations. The vaccinedata dataset has 258 unique IDs and 258 total observations. The casedata dataset has 256 unique IDs and 256 total observations.</p>
+<p>All four datasets have all 254 county names in common (which I won’t list here). The vaccinedata dataset has 4 extra IDs which are Other, Texas, Federal Long-Term Care Vaccination Program, and Federal Pharmacy Retail Vaccination Program. The casedata has 2 extra IDs which are Incomplete Address and Total.</p>
+<p>Now I will join the data.</p>
+<pre class="r"><code>#Join all of the data into a new dataset called countydata
+countydata &lt;- populationdata %&gt;%
+  inner_join(electiondata, by = c(&quot;county&quot; = &quot;County&quot;)) %&gt;%
+  inner_join(vaccinedata, by = c(&quot;county&quot; = &quot;County Name&quot;)) %&gt;%
+  inner_join(casedata, by = c(&quot;county&quot; = &quot;County&quot;))
+countydata %&gt;% head()</code></pre>
+<pre><code>## # A tibble: 6 x 21
+##   county  Population `Donald TrumpRepubl… `Donald TrumpRepub… `Joe BidenDemocra…
+##   &lt;chr&gt;        &lt;dbl&gt;                &lt;dbl&gt;               &lt;dbl&gt;              &lt;dbl&gt;
+## 1 Anders…      57922                 78.6               15110              20.6 
+## 2 Andrews      18610                 84.3                4943              14.5 
+## 3 Angeli…      86395                 72.4               25076              26.4 
+## 4 Aransas      23830                 75.2                9239              23.7 
+## 5 Archer        8560                 89.7                4300               9.3 
+## 6 Armstr…       1848                 93.1                1035               6.74
+## # … with 16 more variables: Joe BidenDemocratic # &lt;dbl&gt;,
+## #   Jo JorgensenLibertarian % &lt;dbl&gt;, Jo JorgensenLibertarian # &lt;dbl&gt;,
+## #   Howie HawkinsGreen % &lt;dbl&gt;, Howie HawkinsGreen # &lt;dbl&gt;,
+## #   Other votes % &lt;dbl&gt;, Other votes # &lt;dbl&gt;, Totalvotes &lt;dbl&gt;,
+## #   Total Doses Allocated &lt;dbl&gt;, Vaccine Doses Administered &lt;dbl&gt;,
+## #   People Vaccinated with at least One Dose &lt;dbl&gt;,
+## #   People Fully Vaccinated &lt;dbl&gt;, People Vaccinated with Booster Dose &lt;dbl&gt;,
+## #   Confirmed Cases &lt;dbl&gt;, Probable Cases &lt;dbl&gt;, Fatalities &lt;dbl&gt;</code></pre>
+<p>To join all of the data into one dataset, countydata, I first used Inner Join on population data and election data, with the name of the county as the key. Using a similar method, I joined vaccinedata and then casedata. 4 observations were dropped from vaccinedata and 2 observations were dropped from casedata. Some issues that may arise is that any data that does not fit within the counties but still happened within the state of Texas, for example federal facilities, will not be included in the rest of the Data.</p>
+</div>
+<div id="c.-wrangling-the-data" class="section level3">
+<h3>c. Wrangling the Data</h3>
+<p>I will now wrangle the data further.</p>
+<pre class="r"><code># Create a new variable Vaccination Rate which calculates the number of fully vaccinated people per person in each county
+countydata &lt;- countydata %&gt;%
+  mutate(`Vaccination Rate` = `People Fully Vaccinated`/`Population`)
+countydata %&gt;% head()</code></pre>
+<pre><code>## # A tibble: 6 x 22
+##   county  Population `Donald TrumpRepubl… `Donald TrumpRepub… `Joe BidenDemocra…
+##   &lt;chr&gt;        &lt;dbl&gt;                &lt;dbl&gt;               &lt;dbl&gt;              &lt;dbl&gt;
+## 1 Anders…      57922                 78.6               15110              20.6 
+## 2 Andrews      18610                 84.3                4943              14.5 
+## 3 Angeli…      86395                 72.4               25076              26.4 
+## 4 Aransas      23830                 75.2                9239              23.7 
+## 5 Archer        8560                 89.7                4300               9.3 
+## 6 Armstr…       1848                 93.1                1035               6.74
+## # … with 17 more variables: Joe BidenDemocratic # &lt;dbl&gt;,
+## #   Jo JorgensenLibertarian % &lt;dbl&gt;, Jo JorgensenLibertarian # &lt;dbl&gt;,
+## #   Howie HawkinsGreen % &lt;dbl&gt;, Howie HawkinsGreen # &lt;dbl&gt;,
+## #   Other votes % &lt;dbl&gt;, Other votes # &lt;dbl&gt;, Totalvotes &lt;dbl&gt;,
+## #   Total Doses Allocated &lt;dbl&gt;, Vaccine Doses Administered &lt;dbl&gt;,
+## #   People Vaccinated with at least One Dose &lt;dbl&gt;,
+## #   People Fully Vaccinated &lt;dbl&gt;, People Vaccinated with Booster Dose &lt;dbl&gt;,
+## #   Confirmed Cases &lt;dbl&gt;, Probable Cases &lt;dbl&gt;, Fatalities &lt;dbl&gt;,
+## #   Vaccination Rate &lt;dbl&gt;</code></pre>
+<pre class="r"><code># Remove redundant variables by selecting for the main variables
+countydata &lt;- countydata %&gt;%
+  select(county, Population, `Donald TrumpRepublican %`, `Total Doses Allocated`, `Vaccine Doses Administered`, `Confirmed Cases`, `Vaccination Rate`)</code></pre>
+<p>I have added a new variable that gives the vaccination rate per county and removed certain redundant variables.</p>
+</div>
+</div>
+<div id="exploratory-data-analysis" class="section level2">
+<h2>2. Exploratory Data Analysis</h2>
+<p>I will now create correlation matrix to determine the correlation coefficients for my variables.</p>
+<pre class="r"><code># Build a correlation matrix between all numeric variables
+countydata_num &lt;- countydata %&gt;%
+  select_if(is.numeric)
+cor(countydata_num, use = &quot;pairwise.complete.obs&quot;)</code></pre>
+<pre><code>##                            Population Donald TrumpRepublican %
+## Population                  1.0000000               -0.4577916
+## Donald TrumpRepublican %   -0.4577916                1.0000000
+## Total Doses Allocated       0.9691487               -0.4854598
+## Vaccine Doses Administered  0.9961647               -0.4769330
+##                            Total Doses Allocated Vaccine Doses Administered
+## Population                             0.9691487                  0.9961647
+## Donald TrumpRepublican %              -0.4854598                 -0.4769330
+## Total Doses Allocated                  1.0000000                  0.9739978
+## Vaccine Doses Administered             0.9739978                  1.0000000
+##                            Confirmed Cases Vaccination Rate
+## Population                       0.9936993        0.2492709
+## Donald TrumpRepublican %        -0.4479577       -0.7367959
+## Total Doses Allocated            0.9544324        0.2683283
+## Vaccine Doses Administered       0.9896664        0.2808852
+##  [ reached getOption(&quot;max.print&quot;) -- omitted 2 rows ]</code></pre>
+<pre class="r"><code># Make it pretty using a heatmap with geom_tile!
+cor(countydata_num, use = &quot;pairwise.complete.obs&quot;) %&gt;%
+  # Save as a data frame
+  as.data.frame %&gt;%
+  # Convert row names to an explicit variable
+  rownames_to_column %&gt;%
+  # Pivot so that all correlations appear in the same column
+  pivot_longer(-1, names_to = &quot;other_var&quot;, values_to = &quot;correlation&quot;) %&gt;%
+  ggplot(aes(rowname, other_var, fill = correlation)) +
+  # Heatmap with geom_tile
+  geom_tile() +
+  # Change the scale to make the middle appear neutral
+  scale_fill_gradient2(low=&quot;red&quot;,mid=&quot;white&quot;,high=&quot;blue&quot;) +
+  # Overlay values
+  geom_text(aes(label = round(correlation,2)), color = &quot;black&quot;, size = 4) +
+  # Give title and labels
+  labs(title = &quot;Correlation matrix for the dataset countydata&quot;, x = &quot;variable 1&quot;, y = &quot;variable 2&quot;)</code></pre>
+<p><img src="/project/project2_files/figure-html/unnamed-chunk-8-1.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code>#Create a correlation matric with univariate and bicariate graphs
+pairs.panels(countydata_num, 
+             method = &quot;pearson&quot;, # correlation coefficient method
+             hist.col = &quot;red&quot;, # color of histogram 
+             smooth = FALSE, density = FALSE, ellipses = FALSE)</code></pre>
+<p><img src="/project/project2_files/figure-html/unnamed-chunk-8-2.png" width="672" style="display: block; margin: auto;" /></p>
+<p>The Population and Total Doses Administered variables are very highly correlated, with a correlation coeffient of 1. However, the Vaccination Rate and the Percentage Vote Share for Donald Trump in the 2020 Presidential Election are also highly negatively coorelated, with a coorelation coefficient of -0.74, suggesting that counties that voted for Donald Trump are very unlikely to have a high vaccination rate. Some variables that were not as correlated were the Population and Vaccination Rate, as well as the Confirmed Cases and Vaccination Rate, suggesting that Vaccination Rate does not have that much of an effect on the Total Confirmed Cases (however, this can be explained by looking at Total Doses Administered and Confirmed Cases, which are highly correlated).</p>
+<p>Some overall trends are that Population is highly correlated with Total Doses Allocated, Total Doses Administered, and Confirmed Cases, suggesting that the more people there were, more covid cases arose, and so the government gave more vaccine doses to counties with higher populations.</p>
+</div>
+<div id="clustering-performing-k-means-clustering" class="section level2">
+<h2>3. Clustering: Performing k-means Clustering</h2>
+<p>Now, I will perform the necessary steps to perform k-means Clustering</p>
+<div id="a.-scale-the-data" class="section level3">
+<h3>a. Scale the Data</h3>
+<pre class="r"><code>#scale the data
+countydata2 &lt;- countydata %&gt;%
+  select_if(is.numeric) %&gt;%
+  scale
+head(countydata2)</code></pre>
+<pre><code>##       Population Donald TrumpRepublican % Total Doses Allocated
+## [1,] -0.13839034               0.29598462            -0.2053816
+## [2,] -0.23413146               0.69718452            -0.2420505
+## [3,] -0.06904671              -0.13818101            -0.0800466
+## [4,] -0.22141858               0.05610635            -0.2397451
+##      Vaccine Doses Administered Confirmed Cases Vaccination Rate
+## [1,]                 -0.1749275      -0.1773332     -0.523054644
+## [2,]                 -0.2328539      -0.2159855     -0.323090678
+## [3,]                 -0.1108270      -0.1490417     -0.163432216
+## [4,]                 -0.2083822      -0.2193985      0.887644286
+##  [ reached getOption(&quot;max.print&quot;) -- omitted 2 rows ]</code></pre>
+</div>
+<div id="b.-determine-optimal-number-of-clusters-via-silhouette" class="section level3">
+<h3>b. Determine Optimal Number of Clusters via Silhouette</h3>
+<p>Next, I will pick the optimal number of clusters.</p>
+<pre class="r"><code>fviz_nbclust(countydata2, kmeans, method = &quot;silhouette&quot;)</code></pre>
+<p><img src="/project/project2_files/figure-html/unnamed-chunk-10-1.png" width="672" style="display: block; margin: auto;" /></p>
+<p>From this, it seems that the optimal number of clusters would be 2 clusters.</p>
+</div>
+<div id="c.-perform-k-means-clustering-with-2-clusters" class="section level3">
+<h3>c. Perform k-means Clustering with 2 Clusters</h3>
+<p>Now, I will perform the k-means clustering with 2 clusters.</p>
+<pre class="r"><code>kmeans_results &lt;- countydata2 %&gt;%
+  kmeans(2)
+kmeans_results</code></pre>
+<pre><code>## K-means clustering with 2 clusters of sizes 249, 5
+## 
+## Cluster means:
+##   Population Donald TrumpRepublican % Total Doses Allocated
+## 1 -0.1191409               0.05078812            -0.1258228
+## 2  5.9332146              -2.52924827             6.2659745
+##   Vaccine Doses Administered Confirmed Cases Vaccination Rate
+## 1                 -0.1183176      -0.1200746      -0.02347431
+## 2                  5.8922162       5.9797168       1.16902058
+## 
+## Clustering vector:
+##  [1] 1 1 1 1 1 1 1 1 1 1 1 1 1 1 2 1 1 1 1 1 1 1 1 1 1
+##  [ reached getOption(&quot;max.print&quot;) -- omitted 229 entries ]
+## 
+## Within cluster sum of squares by cluster:
+## [1] 590.8106 148.3357
+##  (between_SS / total_SS =  51.3 %)
+## 
+## Available components:
+## 
+## [1] &quot;cluster&quot;      &quot;centers&quot;      &quot;totss&quot;        &quot;withinss&quot;     &quot;tot.withinss&quot;
+## [6] &quot;betweenss&quot;    &quot;size&quot;         &quot;iter&quot;         &quot;ifault&quot;</code></pre>
+<pre class="r"><code>names(kmeans_results)</code></pre>
+<pre><code>## [1] &quot;cluster&quot;      &quot;centers&quot;      &quot;totss&quot;        &quot;withinss&quot;     &quot;tot.withinss&quot;
+## [6] &quot;betweenss&quot;    &quot;size&quot;         &quot;iter&quot;         &quot;ifault&quot;</code></pre>
+<pre class="r"><code>kmeans_results$tot.withinss</code></pre>
+<pre><code>## [1] 739.1462</code></pre>
+<pre class="r"><code>#Assign each county to a cluster
+countydata_kmeans &lt;- countydata %&gt;%
+  mutate(cluster = as.factor(kmeans_results$cluster))
+
+head(countydata_kmeans)</code></pre>
+<pre><code>## # A tibble: 6 x 8
+##   county  Population `Donald TrumpRepubl… `Total Doses Allo… `Vaccine Doses Adm…
+##   &lt;chr&gt;        &lt;dbl&gt;                &lt;dbl&gt;              &lt;dbl&gt;               &lt;dbl&gt;
+## 1 Anders…      57922                 78.6              17870               55565
+## 2 Andrews      18610                 84.3               6100               19557
+## 3 Angeli…      86395                 72.4              58100               95411
+## 4 Aransas      23830                 75.2               6840               34769
+## 5 Archer        8560                 89.7               3200                9590
+## 6 Armstr…       1848                 93.1               2100                1758
+## # … with 3 more variables: Confirmed Cases &lt;dbl&gt;, Vaccination Rate &lt;dbl&gt;,
+## #   cluster &lt;fct&gt;</code></pre>
+</div>
+<div id="d.-visualize-clusters" class="section level3">
+<h3>d. Visualize Clusters</h3>
+<p>Now, I will visualize the data by final cluster assignment.</p>
+<pre class="r"><code># Visualize Cluster Data
+fviz_cluster(kmeans_results, data = countydata2)</code></pre>
+<p><img src="/project/project2_files/figure-html/unnamed-chunk-12-1.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code># Interpreting the clusters using ggpairs
+countydata_kmeans2 &lt;- countydata_kmeans %&gt;%
+  select(-county)
+ggpairs(countydata_kmeans2, columns = 1:2, aes(color = cluster))</code></pre>
+<p><img src="/project/project2_files/figure-html/unnamed-chunk-12-2.png" width="672" style="display: block; margin: auto;" /></p>
+</div>
+<div id="e.-discussion-of-k-means-results" class="section level3">
+<h3>e. Discussion of k-means results</h3>
+<p>It appears that the counties with the highest populations are in one cluster and the remaining counties are in the second cluster. The cluster means for Population, Total Doses Allocated, Vaccine Doses Administered, Confirmed Cases, and Vaccination Rates are extremely high for the first cluster and very low for the second cluster. The Percentage of Votes for Donald Trump in the 2020 presidential election is flipped. It is very low for the first cluster and comparitively high for the second cluster. For the first cluster, the 57th datapoint, being Dallas County is in the center. For the second cluster, it is very large with 249 data points and therefore difficult to determine which datapoint represents the center.</p>
+</div>
+</div>
+<div id="dimention-reduction-using-pca" class="section level2">
+<h2>4. Dimention Reduction using PCA</h2>
+<p>Now I will perform PCA Dimention Reduction. First I will prepare the data by scaling it</p>
+<pre class="r"><code>#Prepare the Data by scaling it
+countydata9 &lt;- countydata %&gt;% 
+  select_if(is.numeric) %&gt;%
+  scale %&gt;%
+  as.data.frame
+head(countydata9)</code></pre>
+<pre><code>##    Population Donald TrumpRepublican % Total Doses Allocated
+## 1 -0.13839034               0.29598462            -0.2053816
+## 2 -0.23413146               0.69718452            -0.2420505
+## 3 -0.06904671              -0.13818101            -0.0800466
+## 4 -0.22141858               0.05610635            -0.2397451
+##   Vaccine Doses Administered Confirmed Cases Vaccination Rate
+## 1                 -0.1749275      -0.1773332       -0.5230546
+## 2                 -0.2328539      -0.2159855       -0.3230907
+## 3                 -0.1108270      -0.1490417       -0.1634322
+## 4                 -0.2083822      -0.2193985        0.8876443
+##  [ reached &#39;max&#39; / getOption(&quot;max.print&quot;) -- omitted 2 rows ]</code></pre>
+</div>
+<div id="a.-perform-pca" class="section level2">
+<h2>a. Perform PCA</h2>
+<p>Next, I will perform the PCA.</p>
+<pre class="r"><code># Perform PCA on countydata9 dataset
+pca &lt;- countydata9 %&gt;%
+  prcomp()</code></pre>
+<div id="b.-choose-the-number-of-principal-components" class="section level3">
+<h3>b. Choose the number of principal components</h3>
+<pre class="r"><code>#Choose the number of principal compenents via a scree plot
+get_eigenvalue(pca)</code></pre>
+<pre><code>##        eigenvalue variance.percent cumulative.variance.percent
+## Dim.1 4.364305316      72.73842193                    72.73842
+## Dim.2 1.340181579      22.33635964                    95.07478
+## Dim.3 0.236483201       3.94138669                    99.01617
+## Dim.4 0.049380496       0.82300826                    99.83918
+## Dim.5 0.007013133       0.11688554                    99.95606
+## Dim.6 0.002636276       0.04393793                   100.00000</code></pre>
+<pre class="r"><code>fviz_eig(pca, addlabels = TRUE, ylim = c(0, 40))</code></pre>
+<p><img src="/project/project2_files/figure-html/unnamed-chunk-15-1.png" width="672" style="display: block; margin: auto;" /></p>
+<p>Keeping the first 2 components will add up to about 96%.</p>
+</div>
+<div id="c.-visualize-and-interpret-pca-results" class="section level3">
+<h3>c. Visualize and Interpret PCA Results</h3>
+<p>First, I will Visualize the PCA Results</p>
+<pre class="r"><code># Visualize the contributions of the variables to the PCs in a correlation circle
+fviz_pca_var(pca, col.var = &quot;black&quot;, repel = TRUE)</code></pre>
+<p><img src="/project/project2_files/figure-html/unnamed-chunk-16-1.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code># Visualize both variables and individuals in the same graph
+fviz_pca_biplot(pca, repel = TRUE)</code></pre>
+<p><img src="/project/project2_files/figure-html/unnamed-chunk-16-2.png" width="672" style="display: block; margin: auto;" /></p>
+<p>Now I will interpret the PCA results.</p>
+<pre class="r"><code># Visualzie the contribution of the individual datasets to the PCs in a table
+get_pca_ind(pca)$contrib %&gt;% as.data.frame</code></pre>
+<pre><code>##         Dim.1        Dim.2      Dim.3        Dim.4        Dim.5       Dim.6
+## 1 0.024755198 0.0542031401 0.03892692 0.0098716961 0.0379629758 0.051699898
+## 2 0.045481561 0.0674774165 0.11754300 0.0016123019 0.0006484956 0.005510372
+## 3 0.003002712 0.0003942377 0.09028883 0.0020287555 0.0566583615 0.201559317
+## 4 0.005279848 0.1736121722 0.56482659 0.0004210958 0.0002612366 0.041424006
+##  [ reached &#39;max&#39; / getOption(&quot;max.print&quot;) -- omitted 250 rows ]</code></pre>
+<pre class="r"><code>#Visualize the top 10 contribution of the individuals to the PCs
+fviz_contrib(pca, choice = &quot;ind&quot;, axes = 1, top = 10)</code></pre>
+<p><img src="/project/project2_files/figure-html/unnamed-chunk-17-1.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code>fviz_contrib(pca, choice = &quot;ind&quot;, axes = 2, top = 10)</code></pre>
+<p><img src="/project/project2_files/figure-html/unnamed-chunk-17-2.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code># Use the new dimentions (PCs) to represent the individuals
+fviz_pca_ind(pca,  repel = TRUE) </code></pre>
+<p><img src="/project/project2_files/figure-html/unnamed-chunk-17-3.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code>#Who contributed the most to each component
+get_pca_var(pca)$coord %&gt;% as.data.frame</code></pre>
+<pre><code>##                                 Dim.1     Dim.2        Dim.3       Dim.4
+## Population                  0.9720177 0.2236052 -0.023020002  0.05003292
+## Donald TrumpRepublican %   -0.6355472 0.6814267 -0.362628586 -0.01541554
+## Total Doses Allocated       0.9642616 0.1870005  0.008062157 -0.18646655
+## Vaccine Doses Administered  0.9781919 0.1940108 -0.035561299  0.02223456
+##                                    Dim.5         Dim.6
+## Population                 -0.0226956027 -0.0404230709
+## Donald TrumpRepublican %   -0.0002145826 -0.0004878536
+## Total Doses Allocated       0.0198812193 -0.0005278029
+## Vaccine Doses Administered -0.0536705769  0.0293417871
+##  [ reached &#39;max&#39; / getOption(&quot;max.print&quot;) -- omitted 2 rows ]</code></pre>
+<pre class="r"><code># Visualize the 5 top contributions of the variables to the PCs as a percentage
+fviz_contrib(pca, choice = &quot;var&quot;, axes = 1, top = 5) # on PC1</code></pre>
+<p><img src="/project/project2_files/figure-html/unnamed-chunk-17-4.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code>fviz_contrib(pca, choice = &quot;var&quot;, axes = 2, top = 5) # on PC2</code></pre>
+<p><img src="/project/project2_files/figure-html/unnamed-chunk-17-5.png" width="672" style="display: block; margin: auto;" /></p>
+<p>The total variation explained by the first two PCAs is 95%. A low score of contributions indicates that the data from that point did not contribute to the variation for that PCA, whereas a high score of contribution indicates that the individual point contributed immensely to the variation of that point. For example, 101 (Harris County) Contributed immensely to Dimention 1 and Dimention 2.
+Moreover, the individual variables contributed to dimention 1 almost equally (Except for the Percentage Vote Share for Donald Trump in 2020). For dimention 2, Vaccination rate and the percentage vote share for Donald Trump in 2020 contributed very highly while the other variables did not contribute as much.</p>
+</div>
+</div>
+<div id="clustering-and-cross-validation" class="section level2">
+<h2>5. Clustering and Cross-Validation</h2>
+<div id="a.-performing-clustering" class="section level3">
+<h3>a. Performing Clustering</h3>
+<p>I will perform Logistic Regression, with Vaccine Rate as the response variable, and % Vote Share for Donald Trump in the 2020 presidential election.</p>
+<pre class="r"><code>#Make y values 0 or 1
+countydata8 &lt;- countydata %&gt;%
+  filter(`Vaccination Rate` &lt;= 1) %&gt;%
+  mutate(vac = ifelse(`Vaccination Rate` &gt;= 0.5, 1, 0)) #Make Vaccination Rate a dummy categorical variable
+
+#Take a look at the regression line
+ggplot(countydata8, aes(`Donald TrumpRepublican %`, vac)) + 
+  geom_point() +
+  geom_smooth(method = &quot;glm&quot;, se = FALSE, 
+              method.args = list(family = &quot;binomial&quot;)) + 
+  ylim(0,1)</code></pre>
+<p><img src="/project/project2_files/figure-html/unnamed-chunk-18-1.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code>#Build the logistic model
+fit &lt;- glm(vac ~ `Donald TrumpRepublican %`, data = countydata8, family = &quot;binomial&quot;)
+summary(fit)</code></pre>
+<pre><code>## 
+## Call:
+## glm(formula = vac ~ `Donald TrumpRepublican %`, family = &quot;binomial&quot;, 
+##     data = countydata8)
+## 
+## Deviance Residuals: 
+##     Min       1Q   Median       3Q      Max  
+## -2.1558  -0.6253  -0.4059   0.3362   2.6359  
+## 
+## Coefficients:
+##                            Estimate Std. Error z value Pr(&gt;|z|)    
+## (Intercept)                 8.77609    1.31005   6.699 2.10e-11 ***
+## `Donald TrumpRepublican %` -0.13058    0.01763  -7.408 1.28e-13 ***
+## ---
+## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
+## 
+## (Dispersion parameter for binomial family taken to be 1)
+## 
+##     Null deviance: 313.42  on 251  degrees of freedom
+## Residual deviance: 207.68  on 250  degrees of freedom
+## AIC: 211.68
+## 
+## Number of Fisher Scoring iterations: 5</code></pre>
+<p>Now I will use the model to calculate the predicted probability of vaccination rate for each county.</p>
+<pre class="r"><code># Calculate a predicted probability
+log_countydata8 &lt;- countydata8  %&gt;% 
+  mutate(probability = predict(fit, type = &quot;response&quot;),
+         predicted = ifelse(probability &gt; 0.5, 1, 0)) %&gt;%
+  rownames_to_column(&quot;counties&quot;) %&gt;% 
+  select(county, `Donald TrumpRepublican %`, vac, probability, predicted)
+head(log_countydata8)</code></pre>
+<pre><code>## # A tibble: 6 x 5
+##   county    `Donald TrumpRepublican %`   vac probability predicted
+##   &lt;chr&gt;                          &lt;dbl&gt; &lt;dbl&gt;       &lt;dbl&gt;     &lt;dbl&gt;
+## 1 Anderson                        78.6     0      0.184          0
+## 2 Andrews                         84.3     0      0.0968         0
+## 3 Angelina                        72.4     0      0.337          0
+## 4 Aransas                         75.2     1      0.261          0
+## 5 Archer                          89.7     0      0.0506         0
+## 6 Armstrong                       93.1     0      0.0330         0</code></pre>
+<p>Now I will compare the predicted value to the actual observation for vaccine rate.</p>
+<pre class="r"><code># Visualize predicted and actual transmissions
+ggplot(log_countydata8, aes(`Donald TrumpRepublican %`, vac)) +
+  geom_point(aes(color = as.factor(predicted))) +
+  geom_smooth(method = &quot;glm&quot;, se = FALSE, 
+              method.args = list(family = &quot;binomial&quot;)) +
+  ylim(0,1) + 
+  geom_hline(yintercept = 0.5, lty = 2)</code></pre>
+<p><img src="/project/project2_files/figure-html/unnamed-chunk-20-1.png" width="672" style="display: block; margin: auto;" /></p>
+<p>I will now take a look at the confusion matrix, ROC, and AUC</p>
+<pre class="r"><code># Confusion matrix: compare true to predicted condition
+table(log_countydata8$vac, log_countydata8$predicted) %&gt;% addmargins %&gt;%
+  head()</code></pre>
+<pre><code>##      
+##         0   1 Sum
+##   0   163  10 173
+##   1    34  45  79
+##   Sum 197  55 252</code></pre>
+<pre class="r"><code># ROC curve
+ROC &lt;- ggplot(log_countydata8) + 
+  geom_roc(aes(d = vac, m = probability), n.cuts = 0)
+ROC</code></pre>
+<p><img src="/project/project2_files/figure-html/unnamed-chunk-21-1.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code># Calculate the area under the curve
+calc_auc(ROC)</code></pre>
+<pre><code>##   PANEL group       AUC
+## 1     1    -1 0.8508817</code></pre>
+<p>The area under the curve is 85.09 %</p>
+</div>
+<div id="b.-cross-validation" class="section level3">
+<h3>b. Cross Validation</h3>
+<div id="testing-the-model" class="section level4">
+<h4>1. Testing the Model</h4>
+<p>I will now perform k-fold Cross Validation.</p>
+<p>First, I will test my model by splitting the data into a training set and a test set.</p>
+<pre class="r"><code># Select a fraction of the data for training purposes
+train &lt;- sample_frac(countydata8, size = 0.5)
+
+# Select the rest of the data for the test dataset
+test &lt;- anti_join(countydata8, train, by = &quot;county&quot;)</code></pre>
+<p>Now I will fit the model onto the <code>train</code> set:</p>
+<pre class="r"><code># Fit a logistic model in the 
+fit &lt;- glm(vac ~ `Donald TrumpRepublican %`, data = train, family = &quot;binomial&quot;)
+
+# Results in a data frame for training data
+df_train &lt;- data.frame(
+  probability = predict(fit, newdata = train, type = &quot;response&quot;),
+  vac = train$vac,
+  data_name = &quot;training&quot;)
+
+# Results in a data frame for test data
+df_test &lt;- data.frame(
+  probability = predict(fit, newdata = test, type = &quot;response&quot;),
+  vac = train$vac,
+  data_name = &quot;test&quot;)
+
+# Combined results
+df_combined &lt;- rbind(df_train, df_test)</code></pre>
+<p>Now I will evaluate the performance of the classifier on the <code>train</code> and <code>test</code> sets:</p>
+<pre class="r"><code>#Create ROC Curve
+ROC &lt;- ggplot(df_combined) + 
+  geom_roc(aes(d = vac, m = probability, color = data_name, n.cuts = 0))
+ROC</code></pre>
+<p><img src="/project/project2_files/figure-html/unnamed-chunk-24-1.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code># Compare test and training AUCs
+calc_auc(ROC)</code></pre>
+<pre><code>##   PANEL group       AUC
+## 1     1     1 0.5868720
+## 2     1     2 0.8192285</code></pre>
+</div>
+<div id="perform-k-fold-cross-validation" class="section level4">
+<h4>2. Perform k-fold cross-validation</h4>
+<p>I will now perform k-fold cross validation. First I will setup:</p>
+<pre class="r"><code># Choose number of folds
+k = 10 
+
+# Randomly order rows in the dataset
+data &lt;- countydata8[sample(nrow(countydata8)), ] 
+
+# Create k folds from the dataset
+folds &lt;- cut(seq(1:nrow(data)), breaks = k, labels = FALSE)</code></pre>
+<p>Next, I will fit the model and repeat the process for each k-fold</p>
+<pre class="r"><code># Use a for loop to get diagnostics for each test set
+diags_k &lt;- NULL
+
+for(i in 1:k){
+  # Create training and test sets
+  train &lt;- data[folds != i, ] # all observations except in fold i
+  test &lt;- data[folds == i, ]  # observations in fold i
+  
+  # Train model on training set (all but fold i)
+  fit &lt;- glm(vac ~ `Donald TrumpRepublican %`, data = train, family = &quot;binomial&quot;)
+  
+  # Test model on test set (fold i)
+  df &lt;- data.frame(
+    probability = predict(fit, newdata = test, type = &quot;response&quot;),
+    vac = test$vac)
+  
+  # Consider the ROC curve for the test dataset
+  ROC &lt;- ggplot(df) + 
+    geom_roc(aes(d = vac, m = probability, n.cuts = 0))
+
+  # Get diagnostics for fold i (AUC)
+  diags_k[i] &lt;- calc_auc(ROC)$AUC
+}
+
+# Average performance 
+mean(diags_k)</code></pre>
+<pre><code>## [1] 0.8453756</code></pre>
+<p>My new classifier predicted new observations with approximately an 85% accuracy. I did not see any signs of over-fitting.</p>
+</div>
+</div>
+</div>
+
+            
+        <hr>         <div class="related-posts">
+                <h5>Related Posts</h5>
+                
+              </div> 
+            </div>
+          </div>
+
+   <hr>  <div class="disqus">
+  <div id="disqus_thread"></div>
+  <script type="text/javascript">
+
+    (function() {
+      
+      
+      if (window.location.hostname == "localhost")
+        return;
+
+      var disqus_shortname = '';
+      var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+      dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    })();
+  </script>
+  <noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+  <a href="http://disqus.com/" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+</div> 
+        </div>
+      </div>
+    </div>
+
+    
+    <footer>
+  <div id="footer">
+    <div class="container">
+      <p class="text-muted">&copy; All rights reserved. Powered by <a href="https://gohugo.io/">Hugo</a> and
+      <a href="http://www.github.com/nurlansu/hugo-sustain/">sustain</a> with ♥</p>
+    </div>
+  </div>
+</footer>
+<div class="footer"></div>
+
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+<script src="/js/docs.min.js"></script>
+<script src="/js/main.js"></script>
+
+<script src="/js/ie10-viewport-bug-workaround.js"></script>
+
+
+    
+  </body>
+</html>

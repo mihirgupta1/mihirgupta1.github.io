@@ -1,0 +1,577 @@
+<!DOCTYPE html>
+<html lang="en-US">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="author" content="Mihir" />
+    
+    <link rel="shortcut icon" type="image/x-icon" href="/img/favicon.ico">
+    <title>COVID-19 Vaccinations and Voting Trends in the 2020 Presidential Election in Texas</title>
+    <meta name="generator" content="Hugo 0.98.0" />
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+    <link rel="stylesheet" type="text/css" href="/css/main.css" />
+    <link rel="stylesheet" type="text/css" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" />
+    <link rel="stylesheet" type="text/css" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:200,400,200bold,400old" />
+    
+    <!--[if lt IE 9]>
+			<script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+			<script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+		<![endif]-->
+
+    
+  </head>
+
+  <body>
+    <div id="wrap">
+      
+      <nav class="navbar navbar-default">
+  <div class="container">
+    <div class="navbar-header">
+      <a class="navbar-brand" href="/"><i class="fa fa-home"></i></a>
+      <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#navbar">
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+    </div>
+    <div class="navbar-collapse collapse" id="navbar">
+      <ul class="nav navbar-nav navbar-right">
+      
+        
+        <li><a href="/post/">BLOG</a></li>
+        
+        <li><a href="/projects/">PROJECTS</a></li>
+        
+        <li><a href="/resume/">RESUME</a></li>
+        
+      
+      </ul>
+    </div>
+  </div>
+</nav>
+
+      <div class="container">
+        <div class="blog-post">
+          <h3>
+            <strong><a href="/project/project1/">COVID-19 Vaccinations and Voting Trends in the 2020 Presidential Election in Texas</a></strong>
+          </h3>
+        </div>
+ 
+<div class="blog-title">
+          <h4>
+         March 18, 2022 
+            &nbsp;&nbsp;
+            
+          </h4>
+        </div>
+
+        <div class="panel panel-default">
+          <div class="panel-body">
+            <div class="blogpost">
+              
+
+
+<div id="introduction" class="section level2">
+<h2>1. Introduction</h2>
+<p>I have chosen four datasets. The first dataset, called casedata contains the total number of confirmed COVID-19 cases by county in the state of Texas from the beginning of the Covid-19 pandemic. I got this data from the <a href="https://dshs.texas.gov/coronavirus/additionaldata/">Texas Department of State Health Services</a>.</p>
+<p>The second dataset, called vaccinedata contains various information regarding COVID-19 vaccinations by county including doses allocated to each county, doses administered, and breakdowns by age and priority status. The most important information that I will be using is the total amount of vaccinations administered, people with one dose, people who are fully vaccinated, and people with a booster shot. I also received this data from the <a href="https://dshs.texas.gov/coronavirus/additionaldata/">Texas Department of State Health Services</a>.</p>
+<p>My third dataset, called electiondata, contains the breakdown by county of the results for the 2020 presidential election in Texas. It contains the total vote counts for each county and the breakdown by candidate. I got this data from <a href="https://en.wikipedia.org/wiki/2020_United_States_presidential_election_in_Texas">Wikipedia</a>.</p>
+<p>My fourth dataset, called populationdata contains the breakdown of the population for each county along with other information for each county including the year it was established and the origin for the name of the county. I got this data from <a href="https://en.wikipedia.org/wiki/List_of_counties_in_Texas">Wikipedia</a>, which sourced its data from the <a href="https://www.census.gov/quickfacts/fact/table/TX/PST045219">US Census Bureau</a>.</p>
+<p>These data are interesting to me because I think the politicization of the COVID-19 pandemic and vaccine is a very interesting topic that can help reveal associations between political affialiation and core values that influence vaccination choices.</p>
+<p>I expect that counties that voted more heavily for Donald Trump would have lower vaccination rates and higher proportions of cases than counties that voted for Joe Biden in the 2020 presidential election.</p>
+<pre class="r"><code>#Import the data into RStudio
+casedata &lt;- read_csv(&quot;CaseCountData.csv&quot;)
+casedata %&gt;% head()</code></pre>
+<pre><code>## # A tibble: 6 x 4
+##   County    `Confirmed Cases` `Probable Cases` Fatalities
+##   &lt;chr&gt;                 &lt;dbl&gt;            &lt;dbl&gt;      &lt;dbl&gt;
+## 1 Anderson               6601             2888        230
+## 2 Andrews                3430              358         71
+## 3 Angelina               8922             6316        469
+## 4 Aransas                3150              900         78
+## 5 Archer                 1837              255         28
+## 6 Armstrong               333              167          8</code></pre>
+<pre class="r"><code>vaccinedata &lt;- read_csv(&quot;COVID-19 Vaccine Data by County.csv&quot;)
+vaccinedata %&gt;% head()</code></pre>
+<pre><code>## # A tibble: 6 x 15
+##   `County Name` `Public Health Region… `Total Doses Alloc… `Vaccine Doses Admin…
+##   &lt;chr&gt;         &lt;chr&gt;                                &lt;dbl&gt;                 &lt;dbl&gt;
+## 1 Anderson      4/5N                                 17870                 55565
+## 2 Andrews       10-Sep                                6100                 19557
+## 3 Angelina      4/5N                                 58100                 95411
+## 4 Aransas       11                                    6840                 34769
+## 5 Archer        3-Feb                                 3200                  9590
+## 6 Armstrong     1                                     2100                  1758
+## # … with 11 more variables: People Vaccinated with at least One Dose &lt;dbl&gt;,
+## #   People Fully Vaccinated &lt;dbl&gt;, People Vaccinated with Booster Dose &lt;dbl&gt;,
+## #   Population 5+ &lt;dbl&gt;, Population 12+ &lt;dbl&gt;, Population, 16+ &lt;dbl&gt;,
+## #   Population, 65+ &lt;dbl&gt;, Population, Phase 1A Healthcare Workers &lt;dbl&gt;,
+## #   Population, Phase 1A Long-term Care Residents &lt;dbl&gt;, Population, 16-64
+## #    Any Medical Condition &lt;dbl&gt;,
+## #   Population, Education and Child Care Personnel &lt;dbl&gt;</code></pre>
+<pre class="r"><code>electiondata &lt;- read_csv(&quot;Election Data.csv&quot;)
+electiondata %&gt;% head()</code></pre>
+<pre><code>## # A tibble: 6 x 12
+##   County  `Donald TrumpRepu… `Donald TrumpRep… `Joe BidenDemoc… `Joe BidenDemoc…
+##   &lt;chr&gt;   &lt;chr&gt;                          &lt;dbl&gt; &lt;chr&gt;                       &lt;dbl&gt;
+## 1 Anders… 78.59%                         15110 20.57%                       3955
+## 2 Andrews 84.31%                          4943 14.50%                        850
+## 3 Angeli… 72.40%                         25076 26.40%                       9143
+## 4 Aransas 75.17%                          9239 23.73%                       2916
+## 5 Archer  89.66%                          4300 9.30%                         446
+## 6 Armstr… 93.08%                          1035 6.74%                          75
+## # … with 7 more variables: Jo JorgensenLibertarian % &lt;chr&gt;,
+## #   Jo JorgensenLibertarian # &lt;dbl&gt;, Howie HawkinsGreen % &lt;chr&gt;,
+## #   Howie HawkinsGreen # &lt;dbl&gt;, Other votes % &lt;chr&gt;, Other votes # &lt;dbl&gt;,
+## #   Totalvotes &lt;dbl&gt;</code></pre>
+<pre class="r"><code>populationdata &lt;- read_csv(&quot;Population Data.csv&quot;)
+populationdata %&gt;% head()</code></pre>
+<pre><code>## # A tibble: 6 x 7
+##   County  `FIPS code` `County seat` Established Origin  Etymology     Population
+##   &lt;chr&gt;         &lt;dbl&gt; &lt;chr&gt;               &lt;dbl&gt; &lt;chr&gt;   &lt;chr&gt;              &lt;dbl&gt;
+## 1 Anders…           1 Palestine            1846 Housto… &quot;Kenneth Lew…      57922
+## 2 Andrew…           3 Andrews              1876 Bexar … &quot;Richard And…      18610
+## 3 Angeli…           5 Lufkin               1846 Nacogd… &quot;A Hainai Na…      86395
+## 4 Aransa…           7 Rockport             1871 Refugi… &quot;Aransas Bay…      23830
+## 5 Archer…           9 Archer City          1858 Fannin… &quot;Branch Tann…       8560
+## 6 Armstr…          11 Claude               1876 Bexar … &quot;One of seve…       1848</code></pre>
+</div>
+<div id="tidying-and-wrangling-before-joining" class="section level2">
+<h2>2. Tidying and Wrangling Before Joining</h2>
+<div id="a.-tidying-electiondata" class="section level3">
+<h3>a. Tidying electiondata</h3>
+<p>Before I can join all of these datasets, I need to tidy and wrangle them to ensure there are no issues in joining the data.</p>
+<pre class="r"><code>#Begin with Tidying electiondata
+# remove the % sign from eaach of the values so that the percent voted for each candidate can be used as a number
+electiondata &lt;- electiondata %&gt;%
+  separate(`Donald TrumpRepublican %`, into = c(&quot;Donald TrumpRepublican %&quot;, &quot;DT%&quot;), sep = &quot;%&quot;) %&gt;%
+  separate(`Joe BidenDemocratic %`, into = c(&quot;Joe BidenDemocratic %&quot;, &quot;JB%&quot;), sep = &quot;%&quot;) %&gt;%
+  separate(`Jo JorgensenLibertarian %`, into = c(&quot;Jo JorgensenLibertarian %&quot;, &quot;JJ%&quot;), sep = &quot;%&quot;) %&gt;%
+  separate(`Howie HawkinsGreen %`, into = c(&quot;Howie HawkinsGreen %&quot;, &quot;HH%&quot;), sep = &quot;%&quot;) %&gt;%
+  separate(`Other votes %`, into = c(&quot;Other votes %&quot;, &quot;Ov%&quot;), sep = &quot;%&quot;) 
+
+# Change the data type from character to numeric
+class(electiondata$`Donald TrumpRepublican %`) &lt;- &quot;numeric&quot;
+class(electiondata$`Joe BidenDemocratic %`) &lt;- &quot;numeric&quot;
+class(electiondata$`Jo JorgensenLibertarian %`) &lt;- &quot;numeric&quot;
+class(electiondata$`Howie HawkinsGreen %`) &lt;- &quot;numeric&quot;
+class(electiondata$`Other votes %`) &lt;- &quot;numeric&quot;
+electiondata %&gt;% head()</code></pre>
+<pre><code>## # A tibble: 6 x 17
+##   County  `Donald TrumpRepub… `DT%` `Donald TrumpRepub… `Joe BidenDemocra… `JB%`
+##   &lt;chr&gt;                 &lt;dbl&gt; &lt;chr&gt;               &lt;dbl&gt;              &lt;dbl&gt; &lt;chr&gt;
+## 1 Anders…                78.6 &quot;&quot;                  15110              20.6  &quot;&quot;   
+## 2 Andrews                84.3 &quot;&quot;                   4943              14.5  &quot;&quot;   
+## 3 Angeli…                72.4 &quot;&quot;                  25076              26.4  &quot;&quot;   
+## 4 Aransas                75.2 &quot;&quot;                   9239              23.7  &quot;&quot;   
+## 5 Archer                 89.7 &quot;&quot;                   4300               9.3  &quot;&quot;   
+## 6 Armstr…                93.1 &quot;&quot;                   1035               6.74 &quot;&quot;   
+## # … with 11 more variables: Joe BidenDemocratic # &lt;dbl&gt;,
+## #   Jo JorgensenLibertarian % &lt;dbl&gt;, JJ% &lt;chr&gt;,
+## #   Jo JorgensenLibertarian # &lt;dbl&gt;, Howie HawkinsGreen % &lt;dbl&gt;, HH% &lt;chr&gt;,
+## #   Howie HawkinsGreen # &lt;dbl&gt;, Other votes % &lt;dbl&gt;, Ov% &lt;chr&gt;,
+## #   Other votes # &lt;dbl&gt;, Totalvotes &lt;dbl&gt;</code></pre>
+<pre class="r"><code>#Tidy populationdata
+populationdata &lt;- populationdata %&gt;%
+  separate(&quot;County&quot;, into = c(&quot;county&quot;, &quot;c&quot;), sep = &quot; County&quot;)
+populationdata%&gt;% head()</code></pre>
+<pre><code>## # A tibble: 6 x 8
+##   county c     `FIPS code` `County seat` Established Origin Etymology Population
+##   &lt;chr&gt;  &lt;chr&gt;       &lt;dbl&gt; &lt;chr&gt;               &lt;dbl&gt; &lt;chr&gt;  &lt;chr&gt;          &lt;dbl&gt;
+## 1 Ander… &quot;&quot;              1 Palestine            1846 Houst… &quot;Kenneth…      57922
+## 2 Andre… &quot;&quot;              3 Andrews              1876 Bexar… &quot;Richard…      18610
+## 3 Angel… &quot;&quot;              5 Lufkin               1846 Nacog… &quot;A Haina…      86395
+## 4 Arans… &quot;&quot;              7 Rockport             1871 Refug… &quot;Aransas…      23830
+## 5 Archer &quot;&quot;              9 Archer City          1858 Fanni… &quot;Branch …       8560
+## 6 Armst… &quot;&quot;             11 Claude               1876 Bexar… &quot;One of …       1848</code></pre>
+<p>First I removed the % from each value that had the percentage of the votes won by each candidate in each county. To do this, I separated the column by % to remove it. Then, I changed the datatype of the original column for each candidate containing the percentage of the vote that they won from character to numeric.</p>
+<p>I also removed the word county from each of the county names in the populationdata dataset using the separate function.</p>
+</div>
+<div id="b.-wrangling" class="section level3">
+<h3>b. Wrangling</h3>
+<p>Now, I need to remove any extra columns that are not useful from each dataset</p>
+<pre class="r"><code># Remove Extra Columns from electiondata
+electiondata &lt;- electiondata %&gt;%
+  select(-`DT%`, -`JB%`, -`JJ%`, -`HH%`, -`Ov%`)
+electiondata %&gt;% head()</code></pre>
+<pre><code>## # A tibble: 6 x 12
+##   County  `Donald TrumpRepu… `Donald TrumpRep… `Joe BidenDemoc… `Joe BidenDemoc…
+##   &lt;chr&gt;                &lt;dbl&gt;             &lt;dbl&gt;            &lt;dbl&gt;            &lt;dbl&gt;
+## 1 Anders…               78.6             15110            20.6              3955
+## 2 Andrews               84.3              4943            14.5               850
+## 3 Angeli…               72.4             25076            26.4              9143
+## 4 Aransas               75.2              9239            23.7              2916
+## 5 Archer                89.7              4300             9.3               446
+## 6 Armstr…               93.1              1035             6.74               75
+## # … with 7 more variables: Jo JorgensenLibertarian % &lt;dbl&gt;,
+## #   Jo JorgensenLibertarian # &lt;dbl&gt;, Howie HawkinsGreen % &lt;dbl&gt;,
+## #   Howie HawkinsGreen # &lt;dbl&gt;, Other votes % &lt;dbl&gt;, Other votes # &lt;dbl&gt;,
+## #   Totalvotes &lt;dbl&gt;</code></pre>
+<pre class="r"><code>#Remove Extra columns from vaccinedata
+vaccinedata &lt;- vaccinedata %&gt;%
+  select(`County Name`, `Total Doses Allocated`, `Vaccine Doses Administered`, `People Vaccinated with at least One Dose`, `People Fully Vaccinated`, `People Vaccinated with Booster Dose`)
+vaccinedata %&gt;% head()</code></pre>
+<pre><code>## # A tibble: 6 x 6
+##   `County Name` `Total Doses Alloc… `Vaccine Doses Adm… `People Vaccinated with…
+##   &lt;chr&gt;                       &lt;dbl&gt;               &lt;dbl&gt;                    &lt;dbl&gt;
+## 1 Anderson                    17870               55565                    26856
+## 2 Andrews                      6100               19557                     9128
+## 3 Angelina                    58100               95411                    44070
+## 4 Aransas                      6840               34769                    15910
+## 5 Archer                       3200                9590                     4425
+## 6 Armstrong                    2100                1758                      821
+## # … with 2 more variables: People Fully Vaccinated &lt;dbl&gt;,
+## #   People Vaccinated with Booster Dose &lt;dbl&gt;</code></pre>
+<pre class="r"><code>#Remove Extra Columns from populationdata
+populationdata &lt;- populationdata %&gt;%
+  select(county, Population)
+populationdata %&gt;% head()</code></pre>
+<pre><code>## # A tibble: 6 x 2
+##   county    Population
+##   &lt;chr&gt;          &lt;dbl&gt;
+## 1 Anderson       57922
+## 2 Andrews        18610
+## 3 Angelina       86395
+## 4 Aransas        23830
+## 5 Archer          8560
+## 6 Armstrong       1848</code></pre>
+<p>To make the data much more useable before joining the datasets.</p>
+</div>
+</div>
+<div id="joining-the-data" class="section level2">
+<h2>3. Joining the Data</h2>
+<p>Now, I will get information from each dataset.</p>
+<pre class="r"><code># Code to get the total observations in each dataset
+populationdata %&gt;% dim()</code></pre>
+<pre><code>## [1] 254   2</code></pre>
+<pre class="r"><code>electiondata %&gt;% dim()</code></pre>
+<pre><code>## [1] 254  12</code></pre>
+<pre class="r"><code>vaccinedata %&gt;% dim()</code></pre>
+<pre><code>## [1] 258   6</code></pre>
+<pre class="r"><code>casedata %&gt;% dim()</code></pre>
+<pre><code>## [1] 256   4</code></pre>
+<p>The total number of observations in each dataset are as follows:
+The populationdata dataset has 254 unique IDs and 254 total observations.
+The electiondata dataset has 254 unique IDs and 254 total observations.
+The vaccinedata dataset has 258 unique IDs and 258 total observations.
+The casedata dataset has 256 unique IDs and 256 total observations.</p>
+<p>All four datasets have all 254 county names in common (which I won’t list here). The vaccinedata dataset has 4 extra IDs which are Other, Texas, Federal Long-Term Care Vaccination Program, and Federal Pharmacy Retail Vaccination Program. The casedata has 2 extra IDs which are Incomplete Address and Total.</p>
+<p>Now I will join the data.</p>
+<pre class="r"><code>#Join all of the data into a new dataset called countydata
+countydata &lt;- populationdata %&gt;%
+  inner_join(electiondata, by = c(&quot;county&quot; = &quot;County&quot;)) %&gt;%
+  inner_join(vaccinedata, by = c(&quot;county&quot; = &quot;County Name&quot;)) %&gt;%
+  inner_join(casedata, by = c(&quot;county&quot; = &quot;County&quot;))
+countydata %&gt;% head()</code></pre>
+<pre><code>## # A tibble: 6 x 21
+##   county  Population `Donald TrumpRepubl… `Donald TrumpRepub… `Joe BidenDemocra…
+##   &lt;chr&gt;        &lt;dbl&gt;                &lt;dbl&gt;               &lt;dbl&gt;              &lt;dbl&gt;
+## 1 Anders…      57922                 78.6               15110              20.6 
+## 2 Andrews      18610                 84.3                4943              14.5 
+## 3 Angeli…      86395                 72.4               25076              26.4 
+## 4 Aransas      23830                 75.2                9239              23.7 
+## 5 Archer        8560                 89.7                4300               9.3 
+## 6 Armstr…       1848                 93.1                1035               6.74
+## # … with 16 more variables: Joe BidenDemocratic # &lt;dbl&gt;,
+## #   Jo JorgensenLibertarian % &lt;dbl&gt;, Jo JorgensenLibertarian # &lt;dbl&gt;,
+## #   Howie HawkinsGreen % &lt;dbl&gt;, Howie HawkinsGreen # &lt;dbl&gt;,
+## #   Other votes % &lt;dbl&gt;, Other votes # &lt;dbl&gt;, Totalvotes &lt;dbl&gt;,
+## #   Total Doses Allocated &lt;dbl&gt;, Vaccine Doses Administered &lt;dbl&gt;,
+## #   People Vaccinated with at least One Dose &lt;dbl&gt;,
+## #   People Fully Vaccinated &lt;dbl&gt;, People Vaccinated with Booster Dose &lt;dbl&gt;,
+## #   Confirmed Cases &lt;dbl&gt;, Probable Cases &lt;dbl&gt;, Fatalities &lt;dbl&gt;</code></pre>
+<p>To join all of the data into one dataset, countydata, I first used Inner Join on population data and election data, with the name of the county as the key. Using a similar method, I joined vaccinedata and then casedata. 4 observations were dropped from vaccinedata and 2 observations were dropped from casedata. Some issues that may arise is that any data that does not fit within the counties but still happened within the state of Texas, for example federal facilities, will not be included in the rest of the Data.</p>
+</div>
+<div id="wrangling-the-data-and-summary-statistics" class="section level2">
+<h2>4. Wrangling the Data and Summary Statistics</h2>
+<div id="a.-further-wrangling" class="section level3">
+<h3>a. Further Wrangling</h3>
+<p>I will now wrangle the data to generate some summary statistics.</p>
+<pre class="r"><code># Create a new variable Vaccination Rate which calculates the number of fully vaccinated people per person in each county
+countydata &lt;- countydata %&gt;%
+  mutate(`Vaccination Rate` = `People Fully Vaccinated`/`Population`)
+countydata %&gt;% head()</code></pre>
+<pre><code>## # A tibble: 6 x 22
+##   county  Population `Donald TrumpRepubl… `Donald TrumpRepub… `Joe BidenDemocra…
+##   &lt;chr&gt;        &lt;dbl&gt;                &lt;dbl&gt;               &lt;dbl&gt;              &lt;dbl&gt;
+## 1 Anders…      57922                 78.6               15110              20.6 
+## 2 Andrews      18610                 84.3                4943              14.5 
+## 3 Angeli…      86395                 72.4               25076              26.4 
+## 4 Aransas      23830                 75.2                9239              23.7 
+## 5 Archer        8560                 89.7                4300               9.3 
+## 6 Armstr…       1848                 93.1                1035               6.74
+## # … with 17 more variables: Joe BidenDemocratic # &lt;dbl&gt;,
+## #   Jo JorgensenLibertarian % &lt;dbl&gt;, Jo JorgensenLibertarian # &lt;dbl&gt;,
+## #   Howie HawkinsGreen % &lt;dbl&gt;, Howie HawkinsGreen # &lt;dbl&gt;,
+## #   Other votes % &lt;dbl&gt;, Other votes # &lt;dbl&gt;, Totalvotes &lt;dbl&gt;,
+## #   Total Doses Allocated &lt;dbl&gt;, Vaccine Doses Administered &lt;dbl&gt;,
+## #   People Vaccinated with at least One Dose &lt;dbl&gt;,
+## #   People Fully Vaccinated &lt;dbl&gt;, People Vaccinated with Booster Dose &lt;dbl&gt;,
+## #   Confirmed Cases &lt;dbl&gt;, Probable Cases &lt;dbl&gt;, Fatalities &lt;dbl&gt;,
+## #   Vaccination Rate &lt;dbl&gt;</code></pre>
+<pre class="r"><code>#Create a new categorical variable which sorts counties based on Vaccination Rate, where less than 0.4 is low and more than 0.6 is high, and in between is medium
+countydata &lt;- countydata %&gt;%
+  mutate(`Vaccination Status` = ifelse(`Vaccination Rate` &lt; 0.4, &quot;Low&quot;, ifelse(`Vaccination Rate` &lt; 0.6, &quot;Medium&quot;, &quot;High&quot;)))
+countydata %&gt;% head()</code></pre>
+<pre><code>## # A tibble: 6 x 23
+##   county  Population `Donald TrumpRepubl… `Donald TrumpRepub… `Joe BidenDemocra…
+##   &lt;chr&gt;        &lt;dbl&gt;                &lt;dbl&gt;               &lt;dbl&gt;              &lt;dbl&gt;
+## 1 Anders…      57922                 78.6               15110              20.6 
+## 2 Andrews      18610                 84.3                4943              14.5 
+## 3 Angeli…      86395                 72.4               25076              26.4 
+## 4 Aransas      23830                 75.2                9239              23.7 
+## 5 Archer        8560                 89.7                4300               9.3 
+## 6 Armstr…       1848                 93.1                1035               6.74
+## # … with 18 more variables: Joe BidenDemocratic # &lt;dbl&gt;,
+## #   Jo JorgensenLibertarian % &lt;dbl&gt;, Jo JorgensenLibertarian # &lt;dbl&gt;,
+## #   Howie HawkinsGreen % &lt;dbl&gt;, Howie HawkinsGreen # &lt;dbl&gt;,
+## #   Other votes % &lt;dbl&gt;, Other votes # &lt;dbl&gt;, Totalvotes &lt;dbl&gt;,
+## #   Total Doses Allocated &lt;dbl&gt;, Vaccine Doses Administered &lt;dbl&gt;,
+## #   People Vaccinated with at least One Dose &lt;dbl&gt;,
+## #   People Fully Vaccinated &lt;dbl&gt;, People Vaccinated with Booster Dose &lt;dbl&gt;,
+## #   Confirmed Cases &lt;dbl&gt;, Probable Cases &lt;dbl&gt;, Fatalities &lt;dbl&gt;,
+## #   Vaccination Rate &lt;dbl&gt;, Vaccination Status &lt;chr&gt;</code></pre>
+<p>I have created two new variables that describe the proportion of cases and the case rate per each county.</p>
+</div>
+<div id="b.-summary-statistics" class="section level3">
+<h3>b. Summary Statistics</h3>
+<p>Now, I need to develop some summary statistics.</p>
+<pre class="r"><code># Create summary statistic for average percentage of voting for Donald Trump by vaccination status
+countydata %&gt;%
+  group_by(`Vaccination Status`) %&gt;%
+  select(`county`, `Donald TrumpRepublican %`, `Joe BidenDemocratic %`, `Vaccination Status`) %&gt;%
+  arrange(`Donald TrumpRepublican %`) %&gt;%
+  summarize(
+    Republican = mean(`Donald TrumpRepublican %`), 
+    Democratic = mean(`Joe BidenDemocratic %`)
+  ) %&gt;%
+  pivot_longer(
+    cols = c(`Republican`, `Democratic`),
+    names_to = &quot;Political Party&quot;,
+    values_to = &quot;Mean&quot;
+  ) %&gt;%
+  filter(`Political Party` == &quot;Republican&quot;) %&gt;%
+  select(-`Political Party`) %&gt;%
+  kable(
+    &quot;html&quot;,
+    digits = 3,
+    col.names = c(&quot;Vaccine Rate&quot;, &quot;Mean Percentage Vote for Republicans&quot;),
+    align = &#39;l&#39;,
+    caption = &quot;Vaccination Rate Compared to Republican Vote Share in the 2020 Presidential Election for Texas Counties&quot;
+  )</code></pre>
+<table>
+<caption>
+<span id="tab:unnamed-chunk-8">Table 1: </span>Vaccination Rate Compared to Republican Vote Share in the 2020 Presidential Election for Texas Counties
+</caption>
+<thead>
+<tr>
+<th style="text-align:left;">
+Vaccine Rate
+</th>
+<th style="text-align:left;">
+Mean Percentage Vote for Republicans
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+High
+</td>
+<td style="text-align:left;">
+47.573
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Low
+</td>
+<td style="text-align:left;">
+84.211
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Medium
+</td>
+<td style="text-align:left;">
+75.340
+</td>
+</tr>
+</tbody>
+</table>
+<pre class="r"><code># Create summary statistic for average percentage of voting for Joe Biden by vaccination status
+countydata %&gt;%
+  group_by(`Vaccination Status`) %&gt;%
+  select(`county`, `Donald TrumpRepublican %`, `Joe BidenDemocratic %`, `Vaccination Status`) %&gt;%
+  arrange(`Joe BidenDemocratic %`) %&gt;%
+  summarize(
+    Republican = mean(`Donald TrumpRepublican %`), 
+    Democratic = mean(`Joe BidenDemocratic %`)
+  ) %&gt;%
+  pivot_longer(
+    cols = c(`Republican`, `Democratic`),
+    names_to = &quot;Political Party&quot;,
+    values_to = &quot;Mean&quot;
+  ) %&gt;%
+  filter(`Political Party` == &quot;Democratic&quot;) %&gt;%
+  select(-`Political Party`) %&gt;%
+  kable(
+    &quot;html&quot;,
+    digits = 3,
+    col.names = c(&quot;Vaccine Rate&quot;, &quot;Mean Percentage Vote for Democrats&quot;),
+    align = &#39;l&#39;,
+    caption = &quot;Vaccination Rate Compared to Democratic Vote Share in the 2020 Presidential Election for Texas Counties&quot;
+  )</code></pre>
+<table>
+<caption>
+<span id="tab:unnamed-chunk-8">Table 1: </span>Vaccination Rate Compared to Democratic Vote Share in the 2020 Presidential Election for Texas Counties
+</caption>
+<thead>
+<tr>
+<th style="text-align:left;">
+Vaccine Rate
+</th>
+<th style="text-align:left;">
+Mean Percentage Vote for Democrats
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+High
+</td>
+<td style="text-align:left;">
+51.310
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Low
+</td>
+<td style="text-align:left;">
+14.836
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Medium
+</td>
+<td style="text-align:left;">
+23.476
+</td>
+</tr>
+</tbody>
+</table>
+<p>To develop this summary statistic table, I first grouped by Vaccination Status, then arranged the data in order of the percent of voters who voted for the Republican Nominee and Democratic Nominee. Then I got the summary statistics by using the summarize function. I then tidyed the data by using the pivot_longer function to ensure that each column represented a variable for each unique ID. Then, I filtered the political parties to only look at the republican average or the democratic average to see how a county’s vacccination status is correlated to how they voted in the 2020 presidential election. Then I used certain functions, including the Kable function to visualize the data more effectively.</p>
+<p>What the data reveals is that the counties with a high vaccination rate (more than 60% of the county’s population being fully vaccinated) have a much higher democratic vote share and a much lower republican vote share compared to counties with a medium or low vaccination rate (less than 60% of the county’s population being fully vaccinated). Further still, the democratic vote share decreases as vaccination rate decreases (medium (40 to 60 percent) to low(less than 40 percent)) and the republican vote share increases.</p>
+<p>Now I will complete my third summary statistic.</p>
+<pre class="r"><code>## Code to find the proportion of counties that have each vaccination status (low, medium, and high)
+countydata %&gt;% 
+  select(`county`, `Vaccination Status`) %&gt;%
+  group_by(`Vaccination Status`) %&gt;%
+  summarize(`Count` = n()) %&gt;%
+  mutate(`Proportion` = `Count`/254)</code></pre>
+<pre><code>## # A tibble: 3 x 3
+##   `Vaccination Status` Count Proportion
+##   &lt;chr&gt;                &lt;int&gt;      &lt;dbl&gt;
+## 1 High                    29      0.114
+## 2 Low                     63      0.248
+## 3 Medium                 162      0.638</code></pre>
+<p>This data shows that a large majority of counties have a medium vaccine status, which corresponds to 40 to 60 percent of the county being fully vaccinated.</p>
+</div>
+</div>
+<div id="visualizations" class="section level2">
+<h2>5. Visualizations</h2>
+<p>Now I need to make some visualizations because the project instructions tell me to do so.</p>
+<pre class="r"><code>#code to create scatterplot
+countydata %&gt;% 
+  ggplot(aes(x = `Donald TrumpRepublican %`, y = `Vaccination Rate`, color = `Donald TrumpRepublican %`)) +
+  geom_point() +
+  labs(
+    title = &quot;Republican Vote Share in the 2020 Presidential Election \nin Texas Counties Versus Vaccination Rate&quot;,
+    x = &#39;Republican Vote Share (%)&#39;,
+    y = &#39;Vaccination Rate&#39;,
+    color = &#39;Republican Vote Share&#39;
+  ) +
+  scale_color_gradient(low = &quot;pink&quot;, high = &quot;darkred&quot;) +
+  theme_bw() +
+  geom_smooth(method = &quot;lm&quot;, formula = y ~ x, color = &quot;black&quot;) +
+  scale_x_continuous(breaks = seq(0, 100, by = 10)) +
+  scale_y_continuous(breaks = seq(0, 1.2, by = 0.1))</code></pre>
+<p><img src="/project/project1_files/figure-html/unnamed-chunk-10-1.png" width="672" style="display: block; margin: auto;" /></p>
+<p>This plot depicts the Republication Vote Share in the 2020 Presidential Election versus the Vaccination Rate of Texas Counties. This depicts that as the republican vote share increases, the vaccination rate decreases. What is interesting to note is that there are 2 different counties that have a vaccination rate higher than 1. This can be ascribed to growing populations or people getting multiple vaccinations, or people going to different counties to get vaccinated.</p>
+<p>Now, I will create a second plot.</p>
+<pre class="r"><code>#Code to create barplot
+countydata %&gt;%
+  ggplot(aes(x = `Vaccination Status`, fill = `Vaccination Status`)) +
+  geom_bar(stat = &#39;count&#39;) +
+  labs(
+    title = &#39;Number of Counties with Varying Levels of Vaccinations&#39;,
+    x = &#39;Vaccination Status&#39;,
+    y = &#39;Number of Counties&#39;
+  ) +
+  theme(legend.position = &quot;none&quot;) +
+  theme_light() +
+  scale_y_continuous(breaks = seq(0, 175, by = 25))</code></pre>
+<p><img src="/project/project1_files/figure-html/unnamed-chunk-11-1.png" width="672" style="display: block; margin: auto;" /></p>
+<p>This plot depicts the number of counties with varying levels of vaccinations, grouped into three categories: low (less than 40% fully vaccinated), medium (between 40 and 60 percent), and high (greater than 60%). This shows that the large majority of counties have between 40 and 60 percent of their populations vaccinated against COVID-19 with very few counties having more than 60% vaccinated.</p>
+</div>
+
+            
+        <hr>         <div class="related-posts">
+                <h5>Related Posts</h5>
+                
+              </div> 
+            </div>
+          </div>
+
+   <hr>  <div class="disqus">
+  <div id="disqus_thread"></div>
+  <script type="text/javascript">
+
+    (function() {
+      
+      
+      if (window.location.hostname == "localhost")
+        return;
+
+      var disqus_shortname = '';
+      var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+      dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    })();
+  </script>
+  <noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+  <a href="http://disqus.com/" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+</div> 
+        </div>
+      </div>
+    </div>
+
+    
+    <footer>
+  <div id="footer">
+    <div class="container">
+      <p class="text-muted">&copy; All rights reserved. Powered by <a href="https://gohugo.io/">Hugo</a> and
+      <a href="http://www.github.com/nurlansu/hugo-sustain/">sustain</a> with ♥</p>
+    </div>
+  </div>
+</footer>
+<div class="footer"></div>
+
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+<script src="/js/docs.min.js"></script>
+<script src="/js/main.js"></script>
+
+<script src="/js/ie10-viewport-bug-workaround.js"></script>
+
+
+    
+  </body>
+</html>
