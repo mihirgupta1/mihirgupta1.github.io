@@ -1,0 +1,272 @@
+---
+title: "COVID-19 Vaccinations and Voting Trends in the 2020 Presidential Election in Texas"
+author: "Mihir Gupta"
+date: "3/18/2022"
+output: html_document
+---
+
+```{r global_options, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, eval = TRUE, fig.align = "center", warning = F, message = F, R.options=list(max.print=100,dplyr.print_max=100))
+```
+
+## 1. Introduction
+
+I have chosen four datasets. The first dataset, called casedata contains the total number of confirmed COVID-19 cases by county in the state of Texas from the beginning of the Covid-19 pandemic. I got this data from the [Texas Department of State Health Services](https://dshs.texas.gov/coronavirus/additionaldata/).
+
+The second dataset, called vaccinedata contains various information regarding COVID-19 vaccinations by county including doses allocated to each county, doses administered, and breakdowns by age and priority status. The most important information that I will be using is the total amount of vaccinations administered, people with one dose, people who are fully vaccinated, and people with a booster shot. I also received this data from the [Texas Department of State Health Services](https://dshs.texas.gov/coronavirus/additionaldata/).
+
+My third dataset, called electiondata, contains the breakdown by county of the results for the 2020 presidential election in Texas. It contains the total vote counts for each county and the breakdown by candidate. I got this data from [Wikipedia](https://en.wikipedia.org/wiki/2020_United_States_presidential_election_in_Texas).
+
+My fourth dataset, called populationdata contains the breakdown of the population for each county along with other information for each county including the year it was established and the origin for the name of the county. I got this data from [Wikipedia](https://en.wikipedia.org/wiki/List_of_counties_in_Texas), which sourced its data from the [US Census Bureau](https://www.census.gov/quickfacts/fact/table/TX/PST045219).
+
+These data are interesting to me because I think the politicization of the COVID-19 pandemic and vaccine is a very interesting topic that can help reveal associations between political affialiation and core values that influence vaccination choices.
+
+I expect that counties that voted more heavily for Donald Trump would have lower vaccination rates and higher proportions of cases than counties that voted for Joe Biden in the 2020 presidential election.
+
+```{r, echo=FALSE}
+# Call the tidyverse package
+library(tidyverse)
+library(kableExtra)
+```
+
+```{r}
+#Import the data into RStudio
+casedata <- read_csv("CaseCountData.csv")
+casedata %>% head()
+vaccinedata <- read_csv("COVID-19 Vaccine Data by County.csv")
+vaccinedata %>% head()
+electiondata <- read_csv("Election Data.csv")
+electiondata %>% head()
+populationdata <- read_csv("Population Data.csv")
+populationdata %>% head()
+```
+
+## 2. Tidying and Wrangling Before Joining 
+
+### a. Tidying electiondata
+
+Before I can join all of these datasets, I need to tidy and wrangle them to ensure there are no issues in joining the data. 
+
+```{r}
+#Begin with Tidying electiondata
+# remove the % sign from eaach of the values so that the percent voted for each candidate can be used as a number
+electiondata <- electiondata %>%
+  separate(`Donald TrumpRepublican %`, into = c("Donald TrumpRepublican %", "DT%"), sep = "%") %>%
+  separate(`Joe BidenDemocratic %`, into = c("Joe BidenDemocratic %", "JB%"), sep = "%") %>%
+  separate(`Jo JorgensenLibertarian %`, into = c("Jo JorgensenLibertarian %", "JJ%"), sep = "%") %>%
+  separate(`Howie HawkinsGreen %`, into = c("Howie HawkinsGreen %", "HH%"), sep = "%") %>%
+  separate(`Other votes %`, into = c("Other votes %", "Ov%"), sep = "%") 
+
+# Change the data type from character to numeric
+class(electiondata$`Donald TrumpRepublican %`) <- "numeric"
+class(electiondata$`Joe BidenDemocratic %`) <- "numeric"
+class(electiondata$`Jo JorgensenLibertarian %`) <- "numeric"
+class(electiondata$`Howie HawkinsGreen %`) <- "numeric"
+class(electiondata$`Other votes %`) <- "numeric"
+electiondata %>% head()
+
+#Tidy populationdata
+populationdata <- populationdata %>%
+  separate("County", into = c("county", "c"), sep = " County")
+populationdata%>% head()
+```
+
+First I removed the % from each value that had the percentage of the votes won by each candidate in each county. To do this, I separated the column by % to remove it. Then, I changed the datatype of the original column for each candidate containing the percentage of the vote that they won from character to numeric. 
+
+I also removed the word county from each of the county names in the populationdata dataset using the separate function. 
+
+### b. Wrangling
+
+Now, I need to remove any extra columns that are not useful from each dataset
+
+```{r}
+# Remove Extra Columns from electiondata
+electiondata <- electiondata %>%
+  select(-`DT%`, -`JB%`, -`JJ%`, -`HH%`, -`Ov%`)
+electiondata %>% head()
+
+#Remove Extra columns from vaccinedata
+vaccinedata <- vaccinedata %>%
+  select(`County Name`, `Total Doses Allocated`, `Vaccine Doses Administered`, `People Vaccinated with at least One Dose`, `People Fully Vaccinated`, `People Vaccinated with Booster Dose`)
+vaccinedata %>% head()
+
+#Remove Extra Columns from populationdata
+populationdata <- populationdata %>%
+  select(county, Population)
+populationdata %>% head()
+
+```
+
+To make the data much more useable before joining the datasets.
+
+## 3. Joining the Data
+
+Now, I will get information from each dataset.
+
+```{r}
+# Code to get the total observations in each dataset
+populationdata %>% dim()
+electiondata %>% dim()
+vaccinedata %>% dim()
+casedata %>% dim()
+```
+
+
+The total number of observations in each dataset are as follows:
+The populationdata dataset has 254 unique IDs and 254 total observations. 
+The electiondata dataset has 254 unique IDs and 254 total observations.
+The vaccinedata dataset has 258 unique IDs and 258 total observations. 
+The casedata dataset has 256 unique IDs and 256 total observations. 
+
+All four datasets have all 254 county names in common (which I won't list here). The vaccinedata dataset has 4 extra IDs which are Other, Texas, Federal Long-Term Care Vaccination Program, and Federal Pharmacy Retail Vaccination Program. The casedata has 2 extra IDs which are Incomplete Address and Total.
+
+Now I will join the data.
+
+```{r}
+#Join all of the data into a new dataset called countydata
+countydata <- populationdata %>%
+  inner_join(electiondata, by = c("county" = "County")) %>%
+  inner_join(vaccinedata, by = c("county" = "County Name")) %>%
+  inner_join(casedata, by = c("county" = "County"))
+countydata %>% head()
+```
+
+To join all of the data into one dataset, countydata, I first used Inner Join on population data and election data, with the name of the county as the key. Using a similar method, I joined vaccinedata and then casedata. 4 observations were dropped from vaccinedata and 2 observations were dropped from casedata. Some issues that may arise is that any data that does not fit within the counties but still happened within the state of Texas, for example federal facilities, will not be included in the rest of the Data. 
+
+## 4. Wrangling the Data and Summary Statistics
+
+### a. Further Wrangling
+
+I will now wrangle the data to generate some summary statistics.
+
+```{r}
+# Create a new variable Vaccination Rate which calculates the number of fully vaccinated people per person in each county
+countydata <- countydata %>%
+  mutate(`Vaccination Rate` = `People Fully Vaccinated`/`Population`)
+countydata %>% head()
+
+#Create a new categorical variable which sorts counties based on Vaccination Rate, where less than 0.4 is low and more than 0.6 is high, and in between is medium
+countydata <- countydata %>%
+  mutate(`Vaccination Status` = ifelse(`Vaccination Rate` < 0.4, "Low", ifelse(`Vaccination Rate` < 0.6, "Medium", "High")))
+countydata %>% head()
+```
+
+I have created two new variables that describe the proportion of cases and the case rate per each county. 
+
+### b. Summary Statistics
+
+Now, I need to develop some summary statistics.
+
+```{r}
+
+# Create summary statistic for average percentage of voting for Donald Trump by vaccination status
+countydata %>%
+  group_by(`Vaccination Status`) %>%
+  select(`county`, `Donald TrumpRepublican %`, `Joe BidenDemocratic %`, `Vaccination Status`) %>%
+  arrange(`Donald TrumpRepublican %`) %>%
+  summarize(
+    Republican = mean(`Donald TrumpRepublican %`), 
+    Democratic = mean(`Joe BidenDemocratic %`)
+  ) %>%
+  pivot_longer(
+    cols = c(`Republican`, `Democratic`),
+    names_to = "Political Party",
+    values_to = "Mean"
+  ) %>%
+  filter(`Political Party` == "Republican") %>%
+  select(-`Political Party`) %>%
+  kable(
+    "html",
+    digits = 3,
+    col.names = c("Vaccine Rate", "Mean Percentage Vote for Republicans"),
+    align = 'l',
+    caption = "Vaccination Rate Compared to Republican Vote Share in the 2020 Presidential Election for Texas Counties"
+  )
+
+# Create summary statistic for average percentage of voting for Joe Biden by vaccination status
+countydata %>%
+  group_by(`Vaccination Status`) %>%
+  select(`county`, `Donald TrumpRepublican %`, `Joe BidenDemocratic %`, `Vaccination Status`) %>%
+  arrange(`Joe BidenDemocratic %`) %>%
+  summarize(
+    Republican = mean(`Donald TrumpRepublican %`), 
+    Democratic = mean(`Joe BidenDemocratic %`)
+  ) %>%
+  pivot_longer(
+    cols = c(`Republican`, `Democratic`),
+    names_to = "Political Party",
+    values_to = "Mean"
+  ) %>%
+  filter(`Political Party` == "Democratic") %>%
+  select(-`Political Party`) %>%
+  kable(
+    "html",
+    digits = 3,
+    col.names = c("Vaccine Rate", "Mean Percentage Vote for Democrats"),
+    align = 'l',
+    caption = "Vaccination Rate Compared to Democratic Vote Share in the 2020 Presidential Election for Texas Counties"
+  )
+  
+```
+
+To develop this summary statistic table, I first grouped by Vaccination Status, then arranged the data in order of the percent of voters who voted for the Republican Nominee and Democratic Nominee. Then I got the summary statistics by using the summarize function. I then tidyed the data by using the pivot_longer function to ensure that each column represented a variable for each unique ID. Then, I filtered the political parties to only look at the republican average or the democratic average to see how a county's vacccination status is correlated to how they voted in the 2020 presidential election. Then I used certain functions, including the Kable function to visualize the data more effectively. 
+
+What the data reveals is that the counties with a high vaccination rate (more than 60% of the county's population being fully vaccinated) have a much higher democratic vote share and a much lower republican vote share compared to counties with a medium or low vaccination rate (less than 60% of the county's population being fully vaccinated). Further still, the democratic vote share decreases as vaccination rate decreases (medium (40 to 60 percent) to low(less than 40 percent)) and the republican vote share increases. 
+
+Now I will complete my third summary statistic. 
+
+```{r}
+## Code to find the proportion of counties that have each vaccination status (low, medium, and high)
+countydata %>% 
+  select(`county`, `Vaccination Status`) %>%
+  group_by(`Vaccination Status`) %>%
+  summarize(`Count` = n()) %>%
+  mutate(`Proportion` = `Count`/254)
+```
+
+This data shows that a large majority of counties have a medium vaccine status, which corresponds to 40 to 60 percent of the county being fully vaccinated.
+
+## 5. Visualizations
+
+Now I need to make some visualizations because the project instructions tell me to do so.
+
+```{r}
+#code to create scatterplot
+countydata %>% 
+  ggplot(aes(x = `Donald TrumpRepublican %`, y = `Vaccination Rate`, color = `Donald TrumpRepublican %`)) +
+  geom_point() +
+  labs(
+    title = "Republican Vote Share in the 2020 Presidential Election \nin Texas Counties Versus Vaccination Rate",
+    x = 'Republican Vote Share (%)',
+    y = 'Vaccination Rate',
+    color = 'Republican Vote Share'
+  ) +
+  scale_color_gradient(low = "pink", high = "darkred") +
+  theme_bw() +
+  geom_smooth(method = "lm", formula = y ~ x, color = "black") +
+  scale_x_continuous(breaks = seq(0, 100, by = 10)) +
+  scale_y_continuous(breaks = seq(0, 1.2, by = 0.1))
+```
+
+This plot depicts the Republication Vote Share in the 2020 Presidential Election versus the Vaccination Rate of Texas Counties. This depicts that as the republican vote share increases, the vaccination rate decreases. What is interesting to note is that there are 2 different counties that have a vaccination rate higher than 1. This can be ascribed to growing populations or people getting multiple vaccinations, or people going to different counties to get vaccinated.   
+
+
+Now, I will create a second plot. 
+
+```{r}
+#Code to create barplot
+countydata %>%
+  ggplot(aes(x = `Vaccination Status`, fill = `Vaccination Status`)) +
+  geom_bar(stat = 'count') +
+  labs(
+    title = 'Number of Counties with Varying Levels of Vaccinations',
+    x = 'Vaccination Status',
+    y = 'Number of Counties'
+  ) +
+  theme(legend.position = "none") +
+  theme_light() +
+  scale_y_continuous(breaks = seq(0, 175, by = 25))
+```
+
+This plot depicts the number of counties with varying levels of vaccinations, grouped into three categories: low (less than 40% fully vaccinated), medium (between 40 and 60 percent), and high (greater than 60%). This shows that the large majority of counties have between 40 and 60 percent of their populations vaccinated against COVID-19 with very few counties having more than 60% vaccinated. 
+
